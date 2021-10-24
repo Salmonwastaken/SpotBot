@@ -1,0 +1,21 @@
+{
+  "name": "spotbot",
+  "version": "0.1.0",
+  "description": "Spots a Spotify link, adds it to a playlist",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "Spotify",
+    "Discord",
+    "Bot"
+  ],
+  "author": "Salmon",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "discord.js": "^13.2.0",
+    "express": "^4.17.1",
+    "spotify-web-api-node": "^5.0.2"
+  }
+}
