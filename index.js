@@ -53,6 +53,21 @@ const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_
 // For troubleshooting. Really doesn't need to be async but it is.
 client.once(`ready`,(async ()=>{
     console.log(`Ready`);
+  // So apparently Spotify tokens get revoked after 3600 seconds aka an hour.
+  // To work around this we retrieve a new token every 3500 seconds (roughly 58 minutes), using our current (and still valid) Access and Refresh token.
+	setInterval(async () => {
+		// clientId, clientSecret and refreshToken has been set on the api object previous to this call.
+		spotifyApi.refreshAccessToken().then(
+  		function(data) {
+    			console.log('The access token has been refreshed!');
+    		// Save the access token so that it's used in future calls
+    			spotifyApi.setAccessToken(data.body['access_token']);
+  		},
+  		function(err) {
+    			console.log('Could not refresh access token', err);
+  		}
+		);	
+	}, 3500000);
 }));
 
 //Fires on every message
@@ -87,6 +102,8 @@ client.on(`messageCreate`, async (msg) => {
     }
 });
 
+
+
 // Everything past this point is simply used for troubleshooting. 
 client.once(`reconnecting`, () => {
   console.log(`Reconnecting!`);
@@ -113,4 +130,8 @@ client.login(token);
 function useRegex(input) {
     let regex = /(?<=track\/).*(?=\?)/i;
     return input.match(regex)
+}
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
