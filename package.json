@@ -1,6 +1,6 @@
 {
   "name": "spotbot",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "Spots a Spotify link, adds it to a playlist",
   "main": "index.js",
   "scripts": {
