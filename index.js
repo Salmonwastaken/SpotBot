@@ -47,7 +47,7 @@ var credentials = {
     }
   );
 
-// Create a new client instance
+// Create a new Discord client instance
 const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
 
 // For troubleshooting. Really doesn't need to be async but it is.
@@ -78,8 +78,6 @@ client.on(`messageCreate`, async (msg) => {
         if(!msg.author.bot) {
             // Check if the message contains a Spotify link
             if(msg.content.includes('https://open.spotify.com/track/')){
-                //Check if the bot is active or not. More of a troubleshooting thing than anything
-                msg.react(`👀`)
                 // Extract the Spotify URI/ID so we can use it.
                 let URIID = useRegex(msg.content)
                 // Remove all occurrence of a track to prevent duplicates. Pretty lazy, but it works.
@@ -94,6 +92,8 @@ client.on(`messageCreate`, async (msg) => {
                 await spotifyApi.addTracksToPlaylist(steamedcatsID, [`spotify:track:${URIID}`])
                 .then(function(data) {
                   console.log('Added tracks to playlist!');
+                  // Just to let the people know that we managed to add the spotify track
+                  msg.react(`👀`)
                 }, function(err) {
                   console.log('Adding tracks failed!', err);
                 });
@@ -128,7 +128,7 @@ client.login(token);
 // Function section
 
 function useRegex(input) {
-    let regex = /(?<=track\/).*(?=\?)/i;
+    let regex = /(?<=track\/)([^?\n]+)/i;
     return input.match(regex)
 }
 
