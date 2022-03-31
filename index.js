@@ -131,6 +131,6 @@ client.login(token);
  * @return {string} the Spotify track ID
  */
 function useRegex(input) {
-  const regex = /(?<=track\/)([^?\n]+)/i;
+  const regex = /(?<=track\/)[^?\n]+/i;
   return input.match(regex);
 }
