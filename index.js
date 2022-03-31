@@ -1,63 +1,63 @@
 #!/usr/bin/node
 
 // Require the necessary discord.js classes
-const { Client, Intents} = require( `discord.js` );
-const { token, spotchannel, spotifyID, spotifySecret, steamedcatsID, oauthsecret } = require( `./vars.json` );
-var SpotifyWebApi = require('spotify-web-api-node');
+const {Client, Intents} = require( `discord.js` );
+const {token, spotchannel, spotifyID, spotifySecret, steamedcatsID, oauthsecret} = require( `./vars.json` );
+const SpotifyWebApi = require('spotify-web-api-node');
 
-var scopes = ['playlist-modify-public'],
-  redirectUri = 'https://example.com/callback',
-  clientId = spotifyID,
-  state = 'some-state-of-my-choice';
+const scopes = ['playlist-modify-public'];
+const redirectUri = 'https://example.com/callback';
+const clientId = spotifyID;
+const state = 'some-state-of-my-choice';
 
 // Setting credentials can be done in the wrapper's constructor, or using the API object's setters.
 var spotifyApi = new SpotifyWebApi({
   redirectUri: redirectUri,
-  clientId: clientId
+  clientId: clientId,
 });
 
 // Create the authorization URL
-var authorizeURL = spotifyApi.createAuthorizeURL(scopes, state);
+const authorizeURL = spotifyApi.createAuthorizeURL(scopes, state);
 console.log(authorizeURL);
 
-var credentials = {
-    clientId: spotifyID,
-    clientSecret: spotifySecret,
-    redirectUri: 'https://example.com/callback'
-  };
-  
-  var spotifyApi = new SpotifyWebApi(credentials);
-  
-  // The code that's returned as a query parameter to the redirect URI
-  var code = oauthsecret;
-  
-  // Retrieve an access token and a refresh token
-  spotifyApi.authorizationCodeGrant(code).then(
+const credentials = {
+  clientId: spotifyID,
+  clientSecret: spotifySecret,
+  redirectUri: 'https://example.com/callback',
+};
+
+var spotifyApi = new SpotifyWebApi(credentials);
+
+// The code that's returned as a query parameter to the redirect URI
+const code = oauthsecret;
+
+// Retrieve an access token and a refresh token
+spotifyApi.authorizationCodeGrant(code).then(
     function(data) {
       console.log('The token expires in ' + data.body['expires_in']);
       console.log('The access token is ' + data.body['access_token']);
       console.log('The refresh token is ' + data.body['refresh_token']);
-  
+
       // Set the access token on the API object to use it in later calls
       spotifyApi.setAccessToken(data.body['access_token']);
       spotifyApi.setRefreshToken(data.body['refresh_token']);
     },
     function(err) {
       console.log('Something went wrong!', err);
-    }
-  );
+    },
+);
 
 // Create a new Discord client instance
-const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
+const client = new Client({intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES]});
 
 // For troubleshooting. Really doesn't need to be async but it is.
-client.once(`ready`,(async ()=>{
-    console.log(`Ready`);
+client.once(`ready`, (async ()=>{
+  console.log(`Ready`);
   // So apparently Spotify tokens get revoked after 3600 seconds aka an hour.
   // To work around this we retrieve a new token every 3500 seconds (roughly 58 minutes), using our current (and still valid) Access and Refresh token.
-	setInterval(async () => {
-		// clientId, clientSecret and refreshToken has been set on the api object previous to this call.
-		spotifyApi.refreshAccessToken().then(
+  setInterval(async () => {
+    // clientId, clientSecret and refreshToken has been set on the api object previous to this call.
+    spotifyApi.refreshAccessToken().then(
   		function(data) {
     			console.log('The access token has been refreshed!');
     		// Save the access token so that it's used in future calls
@@ -65,62 +65,61 @@ client.once(`ready`,(async ()=>{
   		},
   		function(err) {
     			console.log('Could not refresh access token', err);
-  		}
-		);	
-	}, 3500000);
+  		},
+    );
+  }, 3500000);
 }));
 
-//Fires on every message
+// Fires on every message
 client.on(`messageCreate`, async (msg) => {
-    // Check if message was sent in specific channel
-    if(msg.channelId == spotchannel ) {
-        // Check if the message was sent by a Bot
-        if(!msg.author.bot) {
-            // Check if the message contains a Spotify link
-            if(msg.content.includes('https://open.spotify.com/track/')){
-                // Extract the Spotify URI/ID so we can use it.
-                let URIID = useRegex(msg.content)
-                // Remove all occurrence of a track to prevent duplicates. Pretty lazy, but it works.
-                let tracks = [{ uri : `spotify:track:${URIID}` }];
-                await spotifyApi.removeTracksFromPlaylist(steamedcatsID, tracks)
-                  .then(function(data) {
-                    console.log('Tracks removed from playlist!');
-                  }, function(err) {
-                    console.log('Deleting tracks failed', err);
-                  });
-                // Add the track 
-                await spotifyApi.addTracksToPlaylist(steamedcatsID, [`spotify:track:${URIID}`])
-                .then(function(data) {
-                  console.log('Added tracks to playlist!');
-                  // Just to let the people know that we managed to add the spotify track
-                  msg.react(`👀`)
-                }, function(err) {
-                  console.log('Adding tracks failed!', err);
-                });
-            }
-        }
+  // Check if message was sent in specific channel
+  if (msg.channelId == spotchannel ) {
+    // Check if the message was sent by a Bot
+    if (!msg.author.bot) {
+      // Check if the message contains a Spotify link
+      if (msg.content.includes('https://open.spotify.com/track/')) {
+        // Extract the Spotify URI/ID so we can use it.
+        const URIID = useRegex(msg.content);
+        // Remove all occurrence of a track to prevent duplicates. Pretty lazy, but it works.
+        const tracks = [{uri: `spotify:track:${URIID}`}];
+        await spotifyApi.removeTracksFromPlaylist(steamedcatsID, tracks)
+            .then(function(data) {
+              console.log('Tracks removed from playlist!');
+            }, function(err) {
+              console.log('Deleting tracks failed', err);
+            });
+        // Add the track
+        await spotifyApi.addTracksToPlaylist(steamedcatsID, [`spotify:track:${URIID}`])
+            .then(function(data) {
+              console.log('Added tracks to playlist!');
+              // Just to let the people know that we managed to add the spotify track
+              msg.react(`👀`);
+            }, function(err) {
+              console.log('Adding tracks failed!', err);
+            });
+      }
     }
+  }
 });
 
 
-
-// Everything past this point is simply used for troubleshooting. 
+// Everything past this point is simply used for troubleshooting.
 client.once(`reconnecting`, () => {
   console.log(`Reconnecting!`);
 });
-  
+
 client.once(`disconnect`, () => {
   console.log(`Disconnect!`);
 });
 
 client.on(`warn`, async (info) => {
-    console.error(new Date() + `: Discord client encountered a warning`);
-    console.log(info);
+  console.error(new Date() + `: Discord client encountered a warning`);
+  console.log(info);
 });
 client.on(`error`, async (error) => {
-    console.error(new Date() + `: Discord client encountered an error`);
-    console.log(error);
-  });
+  console.error(new Date() + `: Discord client encountered an error`);
+  console.log(error);
+});
 client.on(`unhandledReject`, console.log);
 
 client.login(token);
@@ -128,10 +127,10 @@ client.login(token);
 // Function section
 
 function useRegex(input) {
-    let regex = /(?<=track\/)([^?\n]+)/i;
-    return input.match(regex)
+  const regex = /(?<=track\/)([^?\n]+)/i;
+  return input.match(regex);
 }
 
 function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
