@@ -2,31 +2,27 @@
 
 // Require the necessary discord.js classes
 const {Client, Intents} = require( `discord.js` );
-const {token, spotchannel, spotifyID, spotifySecret, steamedcatsID, oauthsecret} = require( `./vars.json` );
+const {token,
+  spotchannel,
+  spotifyID,
+  spotifySecret,
+  steamedcatsID,
+  oauthsecret} = require( `./vars.json` );
 const SpotifyWebApi = require('spotify-web-api-node');
 
 const scopes = ['playlist-modify-public'];
 const redirectUri = 'https://example.com/callback';
-const clientId = spotifyID;
 const state = 'some-state-of-my-choice';
 
-// Setting credentials can be done in the wrapper's constructor, or using the API object's setters.
-var spotifyApi = new SpotifyWebApi({
+const spotifyApi = new SpotifyWebApi({
+  clientId: spotifyID,
+  clientSecret: spotifySecret,
   redirectUri: redirectUri,
-  clientId: clientId,
 });
 
 // Create the authorization URL
 const authorizeURL = spotifyApi.createAuthorizeURL(scopes, state);
 console.log(authorizeURL);
-
-const credentials = {
-  clientId: spotifyID,
-  clientSecret: spotifySecret,
-  redirectUri: 'https://example.com/callback',
-};
-
-var spotifyApi = new SpotifyWebApi(credentials);
 
 // The code that's returned as a query parameter to the redirect URI
 const code = oauthsecret;
