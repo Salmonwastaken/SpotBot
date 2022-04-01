@@ -7,7 +7,7 @@ const {token,
   spotifyID,
   spotifySecret,
   steamedcatsID,
-  oauthsecret} = require( `./vars.json` );
+  oauthsecret} = require( `/etc/Projects/SpotBot/vars.json` );
 const SpotifyWebApi = require('spotify-web-api-node');
 
 const scopes = ['playlist-modify-public'];
