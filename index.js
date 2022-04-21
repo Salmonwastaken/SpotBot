@@ -6,42 +6,15 @@ const {token,
   spotchannel,
   spotifyID,
   spotifySecret,
-  steamedcatsID,
-  oauthsecret} = require( `/etc/Projects/SpotBot/vars.json` );
+  spotifyRefresh,
+  steamedcatsID} = require( `/etc/Projects/SpotBot/vars.json` );
 const SpotifyWebApi = require('spotify-web-api-node');
-
-const scopes = ['playlist-modify-public'];
-const redirectUri = 'https://example.com/callback';
-const state = 'some-state-of-my-choice';
 
 const spotifyApi = new SpotifyWebApi({
   clientId: spotifyID,
   clientSecret: spotifySecret,
-  redirectUri: redirectUri,
+  refreshToken: spotifyRefresh
 });
-
-// Create the authorization URL
-const authorizeURL = spotifyApi.createAuthorizeURL(scopes, state);
-console.log(authorizeURL);
-
-// The code that's returned as a query parameter to the redirect URI
-const code = oauthsecret;
-
-// Retrieve an access token and a refresh token
-spotifyApi.authorizationCodeGrant(code).then(
-    function(data) {
-      console.log('The token expires in ' + data.body['expires_in']);
-      console.log('The access token is ' + data.body['access_token']);
-      console.log('The refresh token is ' + data.body['refresh_token']);
-
-      // Set the access token on the API object to use it in later calls
-      spotifyApi.setAccessToken(data.body['access_token']);
-      spotifyApi.setRefreshToken(data.body['refresh_token']);
-    },
-    function(err) {
-      console.log('Something went wrong!', err);
-    },
-);
 
 // Create a new Discord client instance
 const client = new Client({intents: [Intents.FLAGS.GUILDS,
