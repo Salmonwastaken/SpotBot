@@ -26,6 +26,16 @@ client.once(`ready`, (async ()=>{
   /* So apparently Spotify tokens get revoked after 3600 seconds aka an hour.
   To work around this we retrieve a new token every 3500 seconds,
   using our current (and still valid) Access and Refresh token. */
+  spotifyApi.refreshAccessToken().then(
+    function(data) {
+      console.log('Initial access token has been set');
+      // Save the access token so that it's used in future calls
+      spotifyApi.setAccessToken(data.body['access_token']);
+    },
+    function(err) {
+      console.log('Could not set access token', err);
+    },
+);
   setInterval(async () => {
     spotifyApi.refreshAccessToken().then(
         function(data) {
